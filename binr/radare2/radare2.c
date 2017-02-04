@@ -93,12 +93,11 @@ static ut64 getBaddrFromDebugger(RCore *r, const char *file) {
 	RIODesc *d = r->io->desc;
 	if (!strcmp ("w32dbg", d->plugin->name)) {
 		RIOW32Dbg *g = d->data;
-		r->io->desc->fd = g->pid;
 		r_debug_attach (r->dbg, g->pid);
 	}
 	return r->io->winbase;
 #else
-	int pid = r->io->desc->fd;
+	int pid = r_io_desc_get_pid (r->io, r->io->desc->fd);
 	if (r_debug_attach (r->dbg, pid) == -1) {
 		return 0LL;
 	}

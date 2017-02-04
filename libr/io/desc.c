@@ -156,6 +156,22 @@ R_API bool r_io_desc_exchange (RIO *io, int fd, int fdx)
 	return true;
 }
 
+R_API r_io_desc_get_pid (RIO *io, int fd)
+{
+	RIODesc *desc;
+	if (!io || !io->files)
+		return -2;		//-1 is reserved for plugin internal errors
+	if (!(desc = r_io_desc_get (io, fd)))
+		return -3;
+	if (!desc->plugin)
+		return -4;
+	if (!desc->plugin->isdbg)
+		return -5;
+	if (!desc->plugin->getpid)
+		return -6;
+	return desc->plugin->getpid(desc);
+}
+
 int desc_fini_cb (void *user, const char *fd, const char *cdesc)
 {
 //	RIO *io = (RIO *)user;							//unused

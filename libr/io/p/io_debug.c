@@ -469,11 +469,23 @@ static RIODesc *__open(RIO *io, const char *file, int rw, int mode) {
 	return ret;
 }
 
+static int __close (RIODesc *desc) {
+	int ret = -2;
+	eprintf ("something went wrong\n");
+	if (desc) {
+		eprintf ("trying to close %d with io_debug\n", desc->fd);
+		ret = -1;
+	}
+	r_sys_backtrace ();
+	return ret;
+}
+
 RIOPlugin r_io_plugin_debug = {
 	.name = "debug",
         .desc = "Native debugger (dbg:///bin/ls dbg://1388 pidof:// waitfor://)",
 	.license = "LGPL3",
         .open = __open,
+	.close = __close,
         .check = __plugin_open,
 	.isdbg = true,
 };

@@ -41,7 +41,7 @@ R_API int r_core_file_reopen(RCore *core, const char *args, int perm, int loadbi
 		free (obinfilepath);
 		return false;
 	}
-	newpid = odesc ? odesc->fd : -1;
+	newpid = odesc ? r_io_desc_get_pid (core->io, odesc->fd) : -1;
 
 	if (isdebug) {
 		r_debug_kill (core->dbg, core->dbg->pid, core->dbg->tid, 9); // KILL
@@ -121,7 +121,7 @@ R_API int r_core_file_reopen(RCore *core, const char *args, int perm, int loadbi
 		int newtid = newpid;
 		// XXX - select the right backend
 		if (core->file && core->file->desc) {
-			newpid = core->file->desc->fd;
+			newpid = r_io_desc_get_pid (core->io, core->file->desc->fd);
 #if __linux__
 			core->dbg->main_pid = newpid;
 			newtid = newpid;
@@ -340,7 +340,7 @@ static int r_core_file_do_load_for_debug (RCore *r, ut64 baseaddr, const char *f
 
 	if (!desc) return false;
 	if (cf && desc) {
-		int newpid = desc->fd;
+		int newpid = r_io_desc_get_pid (r->io, desc->fd);
 #if __WINDOWS__
 		r_debug_select (r->dbg, r->dbg->pid, r->dbg->tid);
 #else
@@ -735,6 +735,7 @@ R_API RCoreFile *r_core_file_open(RCore *r, const char *file, int flags, ut64 lo
 		}
 	}
 	if (!fd) {
+		eprintf ("fail\n");
 		if (flags & 2) {
 			if (!r_io_create (r->io, file, 0644, 0)) {
 				goto beach;
